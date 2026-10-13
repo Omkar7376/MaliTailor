@@ -23,12 +23,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBtX4zo3LmeQ8qgmPj7oqrOOi1fiGCRrSE',
-    appId: '1:42293825852:web:4f490ca7a05ddb20f8ce39',
+    appId: '1:42293825852:web:507b2dfb9801aa26f8ce39',
     messagingSenderId: '42293825852',
     projectId: 'stitchup05',
     authDomain: 'stitchup05.firebaseapp.com',
     storageBucket: 'stitchup05.firebasestorage.app',
-    measurementId: 'G-JYH6X926VM',
+    measurementId: 'G-S5TZXKPN1V',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
