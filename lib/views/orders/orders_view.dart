@@ -152,10 +152,14 @@ class OrdersView extends StatelessWidget {
                       final isMobile = AdaptiveLayout.isMobile(context);
 
                       if (isMobile) {
+                        final isSmall = AdaptiveLayout.isSmallMobile(context);
                         return InkWell(
                           onTap: () => Get.toNamed('/orders/${order.orderId}'),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isSmall ? 10 : 14,
+                              vertical: isSmall ? 8 : 12,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -163,7 +167,7 @@ class OrdersView extends StatelessWidget {
                                 Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                       decoration: BoxDecoration(
                                         color: AppColors.primaryDarkBrown.withAlpha(isDark ? 50 : 25),
                                         borderRadius: BorderRadius.circular(6),
@@ -173,37 +177,43 @@ class OrdersView extends StatelessWidget {
                                         style: GoogleFonts.poppins(
                                           color: AppColors.accentLightBrown,
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 12,
+                                          fontSize: isSmall ? 11 : 12,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: 6),
                                     Expanded(
                                       child: Row(
                                         children: [
                                           Flexible(
                                             child: Text(
                                               order.customerName,
-                                              style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+                                              style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: isSmall ? 13 : 14,
+                                              ),
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          const SizedBox(width: 6),
+                                          const SizedBox(width: 4),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                             decoration: BoxDecoration(
                                               color: isDark ? AppColors.darkBorder : AppColors.lightSurfaceCard,
                                               borderRadius: BorderRadius.circular(4),
                                             ),
                                             child: Text(
-                                              'Book #${order.bookNo}',
-                                              style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600),
+                                              'Bk #${order.bookNo}',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: isSmall ? 9 : 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
                                           if (isDueSoon) ...[
                                             const SizedBox(width: 4),
                                             Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
                                               decoration: BoxDecoration(
                                                 color: Colors.amber.withAlpha(40),
                                                 borderRadius: BorderRadius.circular(4),
@@ -212,7 +222,7 @@ class OrdersView extends StatelessWidget {
                                               child: Text(
                                                 'URGENT',
                                                 style: GoogleFonts.poppins(
-                                                  fontSize: 8,
+                                                  fontSize: 7.5,
                                                   fontWeight: FontWeight.w700,
                                                   color: Colors.amber.shade900,
                                                 ),
@@ -222,7 +232,7 @@ class OrdersView extends StatelessWidget {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 4),
                                     PopupMenuButton<String>(
                                       initialValue: order.status,
                                       tooltip: 'Change Status',
@@ -243,35 +253,41 @@ class OrdersView extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 5),
                                 Text(
-                                  '${order.orderType} • Delivery: ${DateFormat('dd MMM yyyy').format(order.deliveryDate)}',
+                                  '${order.orderType} • Due: ${DateFormat('dd MMM yyyy').format(order.deliveryDate)}',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 12,
+                                    fontSize: isSmall ? 11 : 12,
                                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 5),
                                 // Bottom Row: Amounts & Quick Action Buttons
                                 Row(
                                   children: [
                                     Expanded(
                                       child: Wrap(
-                                        spacing: 8,
+                                        spacing: isSmall ? 6 : 8,
                                         runSpacing: 2,
                                         children: [
                                           Text(
-                                            'Total: ₹${order.totalAmount.toStringAsFixed(0)}',
-                                            style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600),
+                                            'Tot: ₹${order.totalAmount.toStringAsFixed(0)}',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: isSmall ? 10 : 11,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                           Text(
                                             'Adv: ₹${order.advanceAmount.toStringAsFixed(0)}',
-                                            style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w500),
+                                            style: GoogleFonts.poppins(
+                                              fontSize: isSmall ? 10 : 11,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                           Text(
                                             'Due: ₹${order.finalPayable.toStringAsFixed(0)}',
                                             style: GoogleFonts.poppins(
-                                              fontSize: 11,
+                                              fontSize: isSmall ? 10 : 11,
                                               fontWeight: FontWeight.w700,
                                               color: order.finalPayable > 0 ? Colors.redAccent : Colors.green,
                                             ),
@@ -281,6 +297,8 @@ class OrdersView extends StatelessWidget {
                                     ),
                                     IconButton(
                                       visualDensity: VisualDensity.compact,
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
                                       icon: const Icon(Icons.send_rounded, color: Color(0xFF25D366), size: 18),
                                       tooltip: 'WhatsApp Alert',
                                       onPressed: () => orderCtrl.sendWhatsAppNotification(order),

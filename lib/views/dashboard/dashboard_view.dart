@@ -25,6 +25,8 @@ class DashboardView extends StatelessWidget {
     final isDesktop = AdaptiveLayout.isDesktop(context);
     final isTablet = AdaptiveLayout.isTablet(context);
 
+    final isSmall = AdaptiveLayout.isSmallMobile(context);
+
     return AdaptiveScaffold(
       currentIndex: 0,
       title: 'Workshop Dashboard',
@@ -39,7 +41,10 @@ class DashboardView extends StatelessWidget {
               final tailor = authCtrl.currentTailor.value;
               return Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSmall ? 16 : 24,
+                  vertical: isSmall ? 14 : 20,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isDark
@@ -48,7 +53,7 @@ class DashboardView extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withAlpha(20),
@@ -66,38 +71,38 @@ class DashboardView extends StatelessWidget {
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: AppColors.accentLightBrown.withAlpha(50),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(5),
                                   border: Border.all(color: AppColors.accentLightBrown.withAlpha(100)),
                                 ),
                                 child: Text(
                                   'Mahadev Mali',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 10,
+                                    fontSize: isSmall ? 9 : 10,
                                     fontWeight: FontWeight.w700,
-                                    letterSpacing: 1.2,
+                                    letterSpacing: 1.0,
                                     color: AppColors.softGolden,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: isSmall ? 6 : 8),
                           Text(
                             tailor?.shopName ?? 'Mali Tailor',
                             style: GoogleFonts.poppins(
-                              fontSize: isDesktop ? 24 : 20,
+                              fontSize: isDesktop ? 24 : (isSmall ? 18 : 20),
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 3),
                           Text(
-                            'Welcome back, ${tailor?.ownerName ?? "Master Tailor"}. Here is your workshop overview today.',
+                            'Welcome back, ${tailor?.ownerName ?? "Master Tailor"}. Here is your workshop overview.',
                             style: GoogleFonts.poppins(
-                              fontSize: 13,
+                              fontSize: isSmall ? 11.5 : 13,
                               color: AppColors.softGolden.withAlpha(220),
                             ),
                           ),
@@ -118,28 +123,28 @@ class DashboardView extends StatelessWidget {
               );
             }),
 
-            const SizedBox(height: 24),
+            SizedBox(height: isSmall ? 16 : 24),
 
             // Live Metrics Counter Grid
             Text(
               'Real-Time Workshop Metrics',
               style: GoogleFonts.poppins(
-                fontSize: 16,
+                fontSize: isSmall ? 14 : 16,
                 fontWeight: FontWeight.w700,
                 color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isSmall ? 8 : 12),
 
             Obx(() {
               final cols = AdaptiveLayout.getGridColumnCount(context, mobile: 2, tablet: 2, desktop: 4);
               return GridView.count(
                 crossAxisCount: cols,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisSpacing: isSmall ? 10 : 16,
+                mainAxisSpacing: isSmall ? 10 : 16,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: isDesktop ? 1.4 : (isTablet ? 1.5 : 1.3),
+                childAspectRatio: isDesktop ? 1.4 : (isTablet ? 1.5 : (isSmall ? 1.35 : 1.3)),
                 children: [
                   StatCard(
                     title: 'Total Customers',
@@ -301,19 +306,22 @@ class DashboardView extends StatelessWidget {
                         order.status != 'Delivered';
 
                     return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: isSmall ? 10 : 14,
+                        vertical: isSmall ? 4 : 8,
+                      ),
                       leading: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: EdgeInsets.all(isSmall ? 8 : 10),
                         decoration: BoxDecoration(
                           color: AppColors.primaryDarkBrown.withAlpha(isDark ? 50 : 20),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
                           order.orderType == 'Shirt'
                               ? Icons.checkroom
                               : (order.orderType == 'Pant' ? Icons.straighten : Icons.dry_cleaning),
                           color: AppColors.accentLightBrown,
-                          size: 20,
+                          size: isSmall ? 18 : 20,
                         ),
                       ),
                       title: Row(
@@ -321,41 +329,44 @@ class DashboardView extends StatelessWidget {
                           Flexible(
                             child: Text(
                               order.customerName,
-                              style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: isSmall ? 13 : 14,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                             decoration: BoxDecoration(
                               color: isDark ? AppColors.darkBorder : AppColors.lightSurfaceCard,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'Book #${order.bookNo}',
-                              style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600),
+                              'Bk #${order.bookNo}',
+                              style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.w600),
                             ),
                           ),
                           if (isDueSoon) ...[
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             const Tooltip(
                               message: 'Urgent Delivery Due',
-                              child: Icon(Icons.warning_amber_rounded, size: 16, color: Colors.amber),
+                              child: Icon(Icons.warning_amber_rounded, size: 15, color: Colors.amber),
                             ),
                           ],
                         ],
                       ),
                       subtitle: Text(
-                        '#${order.orderId.replaceAll('ORD-', '')} • Due: ${DateFormat('dd MMM').format(order.deliveryDate)} • ₹${order.totalAmount.toStringAsFixed(0)}',
-                        style: GoogleFonts.poppins(fontSize: 12),
+                        '#${order.orderId.replaceAll('ORD-', '')} • ${DateFormat('dd MMM').format(order.deliveryDate)} • ₹${order.totalAmount.toStringAsFixed(0)}',
+                        style: GoogleFonts.poppins(fontSize: isSmall ? 11 : 12),
                         overflow: TextOverflow.ellipsis,
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           StatusBadge(status: order.status, compact: true),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 2),
                           const Icon(Icons.chevron_right, size: 16),
                         ],
                       ),

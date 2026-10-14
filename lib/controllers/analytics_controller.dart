@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../data/models/order_model.dart';
 import '../data/models/worker_model.dart';
@@ -83,44 +84,85 @@ class AnalyticsController extends GetxController {
     });
   }
 
+  final Rx<DateTime> selectedMonthDate = DateTime.now().obs;
+  final Rx<DateTimeRange?> customDateRange = Rx<DateTimeRange?>(null);
+
   void setViewMode(AnalysisViewMode mode) {
     viewMode.value = mode;
   }
 
   void setFilter(TimeFilter filter) {
     selectedFilter.value = filter;
+    if (filter != TimeFilter.monthly) {
+      customDateRange.value = null;
+    }
   }
 
-  // Filter orders by selected timeframe
+  void setCustomDateRange(DateTimeRange range) {
+    customDateRange.value = range;
+    selectedFilter.value = TimeFilter.allTime; // Uses custom date range
+  }
+
+  void previousMonth() {
+    final current = selectedMonthDate.value;
+    selectedMonthDate.value = DateTime(current.year, current.month - 1, 1);
+    selectedFilter.value = TimeFilter.monthly;
+    customDateRange.value = null;
+  }
+
+  void nextMonth() {
+    final current = selectedMonthDate.value;
+    selectedMonthDate.value = DateTime(current.year, current.month + 1, 1);
+    selectedFilter.value = TimeFilter.monthly;
+    customDateRange.value = null;
+  }
+
+  // Filter orders by selected timeframe or month/custom range
   List<OrderModel> get filteredOrders {
     final now = DateTime.now();
+    final customRange = customDateRange.value;
+    if (customRange != null) {
+      final start = DateTime(customRange.start.year, customRange.start.month, customRange.start.day);
+      final end = DateTime(customRange.end.year, customRange.end.month, customRange.end.day, 23, 59, 59);
+      return orders.where((o) => o.orderDate.isAfter(start.subtract(const Duration(seconds: 1))) && o.orderDate.isBefore(end.add(const Duration(seconds: 1)))).toList();
+    }
+
     return orders.where((o) {
       final orderDate = o.orderDate;
       switch (selectedFilter.value) {
         case TimeFilter.weekly:
           return orderDate.isAfter(now.subtract(const Duration(days: 7)));
         case TimeFilter.monthly:
-          return orderDate.year == now.year && orderDate.month == now.month;
+          final sel = selectedMonthDate.value;
+          return orderDate.year == sel.year && orderDate.month == sel.month;
         case TimeFilter.yearly:
-          return orderDate.year == now.year;
+          return orderDate.year == selectedMonthDate.value.year;
         case TimeFilter.allTime:
           return true;
       }
     }).toList();
   }
 
-  // Filter transactions by selected timeframe
+  // Filter transactions by selected timeframe or month/custom range
   List<WorkerTransactionModel> get filteredTransactions {
     final now = DateTime.now();
+    final customRange = customDateRange.value;
+    if (customRange != null) {
+      final start = DateTime(customRange.start.year, customRange.start.month, customRange.start.day);
+      final end = DateTime(customRange.end.year, customRange.end.month, customRange.end.day, 23, 59, 59);
+      return transactions.where((t) => t.date.isAfter(start.subtract(const Duration(seconds: 1))) && t.date.isBefore(end.add(const Duration(seconds: 1)))).toList();
+    }
+
     return transactions.where((t) {
       final txDate = t.date;
       switch (selectedFilter.value) {
         case TimeFilter.weekly:
           return txDate.isAfter(now.subtract(const Duration(days: 7)));
         case TimeFilter.monthly:
-          return txDate.year == now.year && txDate.month == now.month;
+          final sel = selectedMonthDate.value;
+          return txDate.year == sel.year && txDate.month == sel.month;
         case TimeFilter.yearly:
-          return txDate.year == now.year;
+          return txDate.year == selectedMonthDate.value.year;
         case TimeFilter.allTime:
           return true;
       }
@@ -165,24 +207,24 @@ class AnalyticsController extends GetxController {
       filteredOrders.where((o) => o.status.toLowerCase() == 'pending').length;
 
   // =========================================================================
-  // WORKER SALARY & ADVANCE METRICS
+  // WORKER SALARY & ADVANCE METRICS (Dynamic by selected month/period)
   // =========================================================================
-  // 1. Total Paid Salary to workers (all payout transactions)
+  // 1. Total Paid Salary to workers for this period (payout transactions)
   double get workerTotalPaidSalary =>
-      transactions
+      filteredTransactions
           .where((t) => t.type == WorkerTransactionType.payout)
           .fold(0.0, (sum, t) => sum + t.amount);
 
-  // 2. Advance Paid / Extra cash given to workers (deductible from salary)
+  // 2. Advance Paid / Extra cash given to workers in this period
   double get workerTotalAdvancePaidSalary =>
-      transactions
+      filteredTransactions
           .where((t) => t.type == WorkerTransactionType.advance)
           .fold(0.0, (sum, t) => sum + t.amount);
 
-  // 3. Total Wages Earned across all assigned orders
+  // 3. Total Wages Earned across assigned orders in this period
   double get workerTotalEarnedWages {
     double total = 0.0;
-    for (final o in orders) {
+    for (final o in filteredOrders) {
       if (o.shirtWorkerId != null && o.shirtWorkerWage > 0) {
         total += o.shirtWorkerWage;
       }
@@ -197,20 +239,20 @@ class AnalyticsController extends GetxController {
     return total;
   }
 
-  // 4. Pending Due Salary across all workers
-  // = Earned Wages - Advances Taken - Payouts Given
+  // 4. Pending Due Salary across all workers in this period
+  // = Earned Wages in period - Advances in period - Payouts in period
   double get workerTotalPendingDueSalary {
     final pending = workerTotalEarnedWages - workerTotalAdvancePaidSalary - workerTotalPaidSalary;
     return pending < 0 ? 0.0 : pending;
   }
 
-  // Per-worker detailed summaries
+  // Per-worker detailed summaries (Calculated dynamically for selected month/timeframe)
   List<WorkerSalarySummary> get workerSalarySummaries {
     return workers.map((worker) {
       int assignedCount = 0;
       double earnedWages = 0.0;
 
-      for (final o in orders) {
+      for (final o in filteredOrders) {
         bool isAssigned = false;
         if (o.shirtWorkerId == worker.workerId && o.shirtWorkerWage > 0) {
           earnedWages += o.shirtWorkerWage;
@@ -228,17 +270,17 @@ class AnalyticsController extends GetxController {
         if (isAssigned) assignedCount++;
       }
 
-      // Sum of advances taken by this worker
-      final workerAdvances = transactions
+      // Sum of advances taken by this worker in this period
+      final workerAdvances = filteredTransactions
           .where((t) => t.workerId == worker.workerId && t.type == WorkerTransactionType.advance)
           .fold(0.0, (sum, t) => sum + t.amount);
 
-      // Sum of payouts already given
-      final workerPayouts = transactions
+      // Sum of payouts given to this worker in this period
+      final workerPayouts = filteredTransactions
           .where((t) => t.workerId == worker.workerId && t.type == WorkerTransactionType.payout)
           .fold(0.0, (sum, t) => sum + t.amount);
 
-      // Net salary balance
+      // Net salary balance for this period
       final netPending = earnedWages - workerAdvances - workerPayouts;
 
       return WorkerSalarySummary(

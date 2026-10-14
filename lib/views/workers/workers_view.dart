@@ -35,15 +35,19 @@ class WorkersView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Update Worker Piece Rates',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                    Expanded(
+                      child: Text(
+                        'Update Piece Rates',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     IconButton(
+                      visualDensity: VisualDensity.compact,
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(ctx),
                     ),
@@ -105,7 +109,7 @@ class WorkersView extends StatelessWidget {
                             await authCtrl.updateWageRates(sWage, pWage);
                           }
                         },
-                        child: const Text('Save Piece Rates'),
+                        child: const Text('Save Rates'),
                       ),
                     ),
                   ],
@@ -317,47 +321,105 @@ class WorkersView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.accentLightBrown.withAlpha(35),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.price_change_outlined, color: AppColors.accentLightBrown, size: 22),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isCompact = constraints.maxWidth < 400;
+                        if (isCompact) {
+                          return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Workshop Piece-Rate Chart (कामगार दर पत्रक)',
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                  color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(7),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.accentLightBrown.withAlpha(35),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.price_change_outlined, color: AppColors.accentLightBrown, size: 20),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Piece-Rate Chart (कामगार दर)',
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                            color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Rates applied to future orders',
+                                          style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: OutlinedButton.icon(
+                                  onPressed: () => _showUpdatePieceRatesDialog(context),
+                                  icon: const Icon(Icons.edit, size: 14),
+                                  label: const Text('Update Rates'),
+                                  style: OutlinedButton.styleFrom(
+                                    visualDensity: VisualDensity.compact,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    side: const BorderSide(color: AppColors.accentLightBrown),
+                                  ),
                                 ),
                               ),
-                              Text(
-                                'Standard rates applied to future orders created by admin',
-                                style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey),
-                              ),
                             ],
-                          ),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _showUpdatePieceRatesDialog(context),
-                          icon: const Icon(Icons.edit, size: 15),
-                          label: const Text('Update Rates'),
-                          style: OutlinedButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            side: const BorderSide(color: AppColors.accentLightBrown),
-                          ),
-                        ),
-                      ],
+                          );
+                        }
+                        return Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.accentLightBrown.withAlpha(35),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.price_change_outlined, color: AppColors.accentLightBrown, size: 22),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Workshop Piece-Rate Chart (कामगार दर पत्रक)',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                      color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Standard rates applied to future orders created by admin',
+                                    style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () => _showUpdatePieceRatesDialog(context),
+                              icon: const Icon(Icons.edit, size: 15),
+                              label: const Text('Update Rates'),
+                              style: OutlinedButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                side: const BorderSide(color: AppColors.accentLightBrown),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     const Divider(height: 1),
@@ -445,17 +507,28 @@ class WorkersView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Tailoring Atelier Team',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                Flexible(
+                  child: Text(
+                    'Staff & Workers',
+                    style: GoogleFonts.poppins(
+                      fontSize: AdaptiveLayout.isSmallMobile(context) ? 16 : 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: () => _showWorkerFormDialog(context, workerCtrl),
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add, size: 18),
                   label: const Text('Add Staff'),
+                  style: ElevatedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AdaptiveLayout.isSmallMobile(context) ? 10 : 16,
+                      vertical: AdaptiveLayout.isSmallMobile(context) ? 8 : 10,
+                    ),
+                  ),
                 ),
               ],
             ),

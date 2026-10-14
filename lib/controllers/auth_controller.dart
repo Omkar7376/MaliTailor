@@ -23,14 +23,14 @@ class AuthController extends GetxController {
     updatedAt: DateTime(2026, 1, 1),
   );
 
-  final Rx<TailorModel?> currentTailor = Rx<TailorModel?>(defaultTailor);
+  final Rx<TailorModel?> currentTailor = Rx<TailorModel?>(null);
   final RxDouble workerShirtWage = AppEnv.defaultShirtWage.obs;
   final RxDouble workerPantWage = AppEnv.defaultPantWage.obs;
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
   bool get isAuthenticated => currentTailor.value != null;
-  String get tailorId => currentTailor.value?.uid ?? 'admin_studio_01';
+  String get tailorId => currentTailor.value?.uid ?? AppEnv.defaultTailorId;
 
   StreamSubscription? _tailorSub;
 
@@ -39,7 +39,23 @@ class AuthController extends GetxController {
     super.onInit();
     currentTailor.bindStream(_authService.authStateChanges);
     _subscribeTailorProfile();
-    ever(currentTailor, (_) => _subscribeTailorProfile());
+    ever(currentTailor, (tailor) {
+      _subscribeTailorProfile();
+      if (tailor != null && (Get.currentRoute == AppRoutes.login || Get.currentRoute == '')) {
+        Get.offAllNamed(AppRoutes.dashboard);
+      }
+    });
+    _restoreSession();
+  }
+
+  Future<void> _restoreSession() async {
+    final tailor = await _authService.checkPersistedSession();
+    if (tailor != null) {
+      currentTailor.value = tailor;
+      if (Get.currentRoute == AppRoutes.login || Get.currentRoute == '') {
+        Get.offAllNamed(AppRoutes.dashboard);
+      }
+    }
   }
 
   @override

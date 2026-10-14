@@ -49,6 +49,8 @@ class StitchUpApp extends StatelessWidget {
         themeMode: themeCtrl.themeMode.value,
         initialRoute: AppPages.initial,
         getPages: AppPages.routes,
+        defaultTransition: Transition.fadeIn,
+        transitionDuration: const Duration(milliseconds: 320),
       );
     });
   }

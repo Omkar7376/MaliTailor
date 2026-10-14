@@ -123,31 +123,37 @@ class CustomersView extends StatelessWidget {
                       final customer = list[index];
 
                       return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: AdaptiveLayout.isSmallMobile(context) ? 10 : 18,
+                          vertical: AdaptiveLayout.isSmallMobile(context) ? 4 : 8,
+                        ),
                         leading: CircleAvatar(
-                          radius: 22,
+                          radius: AdaptiveLayout.isSmallMobile(context) ? 18 : 22,
                           backgroundColor: AppColors.primaryDarkBrown.withAlpha(isDark ? 60 : 25),
                           child: Text(
                             customer.name.isNotEmpty ? customer.name[0].toUpperCase() : 'C',
                             style: GoogleFonts.poppins(
                               color: AppColors.accentLightBrown,
                               fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                              fontSize: AdaptiveLayout.isSmallMobile(context) ? 14 : 16,
                             ),
                           ),
                         ),
                         title: Row(
                           children: [
-                            Text(
-                              customer.name,
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
+                            Flexible(
+                              child: Text(
+                                customer.name,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: AdaptiveLayout.isSmallMobile(context) ? 13.5 : 15,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColors.accentLightBrown.withAlpha(isDark ? 50 : 30),
                                 borderRadius: BorderRadius.circular(6),
@@ -156,9 +162,9 @@ class CustomersView extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                'Book #${customer.bookNo}',
+                                'Bk #${customer.bookNo}',
                                 style: GoogleFonts.poppins(
-                                  fontSize: 11,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color: isDark ? AppColors.softGolden : AppColors.secondaryMediumBrown,
                                 ),

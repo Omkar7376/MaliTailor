@@ -19,7 +19,7 @@ class OrderDetailView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order #$orderId'),
+        title: Text('Order #$orderId', style: const TextStyle(fontSize: 16)),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
@@ -85,66 +85,96 @@ class OrderDetailView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Order Header Banner
+                  // 1. Order Hero & Customer Card (Compact Atelier Header)
                   Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        width: 1.2,
+                      ),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(22),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    order.orderId,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      order.orderId,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: -0.3,
+                                        color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Placed on ${DateFormat('dd MMMM yyyy').format(order.orderDate)}',
-                                    style: GoogleFonts.poppins(fontSize: 12),
-                                  ),
-                                ],
+                                    Text(
+                                      DateFormat('dd MMM yyyy, hh:mm a').format(order.orderDate),
+                                      style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade600),
+                                    ),
+                                  ],
+                                ),
                               ),
                               StatusBadge(status: order.status),
                             ],
                           ),
-                          const Divider(height: 28),
+                          const Divider(height: 18),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Customer Name', style: GoogleFonts.poppins(fontSize: 11)),
-                                  Text(
-                                    order.customerName,
-                                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+                              CircleAvatar(
+                                radius: 18,
+                                backgroundColor: AppColors.primaryDarkBrown.withAlpha(isDark ? 60 : 30),
+                                child: Text(
+                                  order.customerName.isNotEmpty ? order.customerName[0].toUpperCase() : 'C',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.accentLightBrown,
                                   ),
-                                  Text('Phone: ${order.customerMobile}', style: GoogleFonts.poppins(fontSize: 12)),
-                                ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      order.customerName,
+                                      style: GoogleFonts.poppins(fontSize: 14.5, fontWeight: FontWeight.w600),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      order.customerMobile,
+                                      style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
+                                    ),
+                                  ],
+                                ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: AppColors.accentLightBrown.withAlpha(30),
+                                  color: isDark ? AppColors.darkSurfaceCard : const Color(0xFFFBF7F0),
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: AppColors.accentLightBrown),
+                                  border: Border.all(color: AppColors.accentLightBrown.withAlpha(120)),
                                 ),
                                 child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text('Ledger Book', style: GoogleFonts.poppins(fontSize: 10)),
+                                    Text('Book #', style: GoogleFonts.poppins(fontSize: 9, fontWeight: FontWeight.w500)),
                                     Text(
                                       '#${order.bookNo}',
                                       style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
                                         color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
                                       ),
                                     ),
@@ -158,80 +188,218 @@ class OrderDetailView extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 12),
 
-                  // Garment Details & Pricing Card
+                  // 2. Garment Breakdown & Financial Summary Card
                   Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        width: 1.2,
+                      ),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(22),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Garment Items & Billing Details',
-                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentLightBrown.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(Icons.receipt_long_rounded, color: AppColors.accentLightBrown, size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Garments & Billing',
+                                  style: GoogleFonts.poppins(fontSize: 14.5, fontWeight: FontWeight.w700),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 12),
                           if (order.shirtQty > 0)
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: const Icon(Icons.checkroom, color: AppColors.accentLightBrown),
-                              title: Text('Shirt (Qty: ${order.shirtQty})'),
-                              trailing: Text(
-                                '₹${order.shirtTotal.toStringAsFixed(0)}',
-                                style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.checkroom, color: AppColors.accentLightBrown, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Shirt × ${order.shirtQty}',
+                                        style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    '₹${order.shirtTotal.toStringAsFixed(0)}',
+                                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13.5),
+                                  ),
+                                ],
                               ),
                             ),
                           if (order.pantQty > 0)
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: const Icon(Icons.straighten, color: AppColors.accentLightBrown),
-                              title: Text('Pant / Trouser (Qty: ${order.pantQty})'),
-                              trailing: Text(
-                                '₹${order.pantTotal.toStringAsFixed(0)}',
-                                style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.straighten, color: Color(0xFF0D9488), size: 16),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Pant / Trouser × ${order.pantQty}',
+                                        style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    '₹${order.pantTotal.toStringAsFixed(0)}',
+                                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13.5),
+                                  ),
+                                ],
                               ),
                             ),
-                          const Divider(),
-                          _summaryRow('Total Amount', '₹${order.totalAmount.toStringAsFixed(0)}'),
+                          const Divider(height: 18),
+                          _summaryRow('Subtotal', '₹${order.totalAmount.toStringAsFixed(0)}'),
                           if (order.discount > 0)
                             _summaryRow('Discount', '- ₹${order.discount.toStringAsFixed(0)}', color: Colors.green),
                           _summaryRow('Advance Paid', '₹${order.advanceAmount.toStringAsFixed(0)}', color: Colors.green),
-                          const Divider(),
-                          _summaryRow(
-                            'Balance Due',
-                            '₹${order.finalPayable.toStringAsFixed(0)}',
-                            bold: true,
-                            color: order.finalPayable > 0 ? Colors.redAccent : Colors.green,
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                            decoration: BoxDecoration(
+                              color: order.finalPayable > 0
+                                  ? (isDark ? Colors.red.withAlpha(25) : const Color(0xFFFEF2F2))
+                                  : (isDark ? Colors.green.withAlpha(25) : const Color(0xFFF0FDF4)),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: order.finalPayable > 0
+                                    ? Colors.redAccent.withAlpha(90)
+                                    : Colors.green.withAlpha(90),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    order.finalPayable > 0 ? 'Balance Due' : 'Paid in Full',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                      color: order.finalPayable > 0 ? Colors.redAccent : Colors.green,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                Text(
+                                  '₹${order.finalPayable.toStringAsFixed(0)}',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                    color: order.finalPayable > 0 ? Colors.redAccent : Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 12),
 
-                  // Workshop Details & Quick Action Buttons
+                  // 3. Workshop Status & Assignment Card
                   Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        width: 1.2,
+                      ),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(22),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Workshop Actions & Status',
-                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.statusPending.withAlpha(30),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(Icons.architecture_rounded, color: AppColors.statusPending, size: 16),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Workshop & Delivery',
+                                  style: GoogleFonts.poppins(fontSize: 14.5, fontWeight: FontWeight.w700),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 12),
-                          // Shirt Worker
-                          if (order.shirtWorkerName != null) ...[
-                            Row(
+
+                          // Target Delivery Banner
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkSurfaceCard : AppColors.lightSurfaceCard,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                            ),
+                            child: Row(
                               children: [
-                                const Icon(Icons.cut, size: 16, color: AppColors.accentLightBrown),
-                                const SizedBox(width: 8),
-                                Text('Shirt Tailor: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                                Text(order.shirtWorkerName!),
-                                const SizedBox(width: 8),
+                                const Icon(Icons.event_available_rounded, size: 18, color: AppColors.accentLightBrown),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Target Delivery', style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey.shade600)),
+                                      Text(
+                                        DateFormat('dd MMMM yyyy').format(order.deliveryDate),
+                                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Tailor Assignments (Clean wrap)
+                          if (order.shirtWorkerName != null) ...[
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                const Icon(Icons.cut, size: 14, color: AppColors.accentLightBrown),
+                                Text('Shirt Tailor: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 12)),
+                                Text(order.shirtWorkerName!, style: GoogleFonts.poppins(fontSize: 12)),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
@@ -240,23 +408,22 @@ class OrderDetailView extends StatelessWidget {
                                   ),
                                   child: Text(
                                     'Wage: ₹${order.shirtWorkerWage.toStringAsFixed(0)}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.accentLightBrown),
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.accentLightBrown),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                           ],
-
-                          // Pant Worker
                           if (order.pantWorkerName != null) ...[
-                            Row(
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 6,
+                              runSpacing: 4,
                               children: [
-                                const Icon(Icons.straighten, size: 16, color: Color(0xFF0D9488)),
-                                const SizedBox(width: 8),
-                                Text('Pant Tailor: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                                Text(order.pantWorkerName!),
-                                const SizedBox(width: 8),
+                                const Icon(Icons.straighten, size: 14, color: Color(0xFF0D9488)),
+                                Text('Pant Tailor: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 12)),
+                                Text(order.pantWorkerName!, style: GoogleFonts.poppins(fontSize: 12)),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
@@ -265,24 +432,23 @@ class OrderDetailView extends StatelessWidget {
                                   ),
                                   child: Text(
                                     'Wage: ₹${order.pantWorkerWage.toStringAsFixed(0)}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D9488)),
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0D9488)),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                           ],
-
-                          // Fallback single worker
                           if (order.shirtWorkerName == null && order.pantWorkerName == null) ...[
-                            Row(
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 6,
+                              runSpacing: 4,
                               children: [
-                                const Icon(Icons.badge_outlined, size: 16),
-                                const SizedBox(width: 8),
-                                Text('Assigned Staff: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                                Text(order.assignedWorkerName ?? 'Not Assigned Yet'),
-                                if (order.workerWage > 0) ...[
-                                  const SizedBox(width: 8),
+                                const Icon(Icons.badge_outlined, size: 14),
+                                Text('Assigned: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 12)),
+                                Text(order.assignedWorkerName ?? 'Not Assigned', style: GoogleFonts.poppins(fontSize: 12)),
+                                if (order.workerWage > 0)
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
@@ -291,63 +457,65 @@ class OrderDetailView extends StatelessWidget {
                                     ),
                                     child: Text(
                                       'Wage: ₹${order.workerWage.toStringAsFixed(0)}',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.accentLightBrown),
+                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.accentLightBrown),
                                     ),
                                   ),
-                                ],
                               ],
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                           ],
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.event, size: 16),
-                              const SizedBox(width: 8),
-                              Text('Delivery Date: ', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                              Text(DateFormat('dd MMMM yyyy').format(order.deliveryDate)),
-                            ],
-                          ),
-                          if (order.note.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text('Note: ${order.note}', style: GoogleFonts.poppins(fontStyle: FontStyle.italic)),
-                          ],
-                          const SizedBox(height: 20),
 
-                          // Action Buttons: Change Status, Send WhatsApp, View Invoice
+                          if (order.note.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text('Note: ${order.note}', style: GoogleFonts.poppins(fontStyle: FontStyle.italic, fontSize: 11.5, color: Colors.grey.shade600)),
+                          ],
+                          const SizedBox(height: 14),
+
+                          // Quick Actions (WhatsApp, Invoice, Status Dropdown)
                           Wrap(
-                            spacing: 12,
-                            runSpacing: 12,
+                            spacing: 8,
+                            runSpacing: 8,
                             children: [
                               ElevatedButton.icon(
                                 onPressed: () => orderCtrl.sendWhatsAppNotification(order),
-                                icon: const Icon(Icons.send, color: Colors.white, size: 18),
-                                label: const Text('Send WhatsApp Alert'),
+                                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 15),
+                                label: const Text('WhatsApp', style: TextStyle(fontSize: 12)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF25D366),
                                   foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
                               ),
                               OutlinedButton.icon(
                                 onPressed: () => Get.toNamed('/invoices/${order.orderId}'),
-                                icon: const Icon(Icons.receipt_long, size: 18),
-                                label: const Text('Digital Invoice'),
+                                icon: const Icon(Icons.receipt_long_rounded, size: 15),
+                                label: const Text('Invoice', style: TextStyle(fontSize: 12)),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
                               ),
                               PopupMenuButton<String>(
                                 initialValue: order.status,
                                 onSelected: (s) => orderCtrl.updateStatus(order.orderId, s),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                                   decoration: BoxDecoration(
+                                    color: isDark ? AppColors.darkSurfaceCard : Colors.white,
                                     border: Border.all(color: AppColors.accentLightBrown),
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.edit, size: 16, color: AppColors.accentLightBrown),
-                                      const SizedBox(width: 6),
-                                      Text('Change Status: ${order.status}'),
+                                      const Icon(Icons.tune_rounded, size: 15, color: AppColors.accentLightBrown),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Status: ${order.status}',
+                                        style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -366,7 +534,7 @@ class OrderDetailView extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),

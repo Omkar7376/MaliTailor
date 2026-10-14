@@ -4,6 +4,7 @@ enum DeviceType { mobile, tablet, desktop }
 
 class AdaptiveLayout {
   static const double mobileBreakpoint = 600;
+  static const double smallMobileBreakpoint = 380;
   static const double desktopBreakpoint = 1024;
 
   static DeviceType getDeviceType(BuildContext context) {
@@ -16,6 +17,9 @@ class AdaptiveLayout {
       return DeviceType.desktop;
     }
   }
+
+  static bool isSmallMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width <= smallMobileBreakpoint;
 
   static bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < mobileBreakpoint;
@@ -52,6 +56,7 @@ class AdaptiveLayout {
   static double getHorizontalPadding(BuildContext context) {
     if (isDesktop(context)) return 32.0;
     if (isTablet(context)) return 24.0;
+    if (isSmallMobile(context)) return 12.0;
     return 16.0;
   }
 }

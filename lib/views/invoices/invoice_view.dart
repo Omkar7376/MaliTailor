@@ -21,7 +21,7 @@ class InvoiceView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Invoice #$orderId'),
+        title: Text('Invoice #$orderId',style: const TextStyle(fontSize: 16),),
         actions: [
           IconButton(
             icon: const Icon(Icons.share_outlined),

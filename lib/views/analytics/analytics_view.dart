@@ -43,21 +43,27 @@ class AnalyticsView extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.tune, color: AppColors.accentLightBrown),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Update Worker Piece Rates',
-                            style: GoogleFonts.poppins(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.tune, color: AppColors.accentLightBrown, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Update Piece Rates',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       IconButton(
+                        visualDensity: VisualDensity.compact,
                         icon: const Icon(Icons.close),
                         onPressed: () => Navigator.pop(ctx),
                       ),
@@ -120,7 +126,7 @@ class AnalyticsView extends StatelessWidget {
                               await authCtrl.updateWageRates(sWage, pWage);
                             }
                           },
-                          child: const Text('Save Piece Rates'),
+                          child: const Text('Save Rates'),
                         ),
                       ),
                     ],
@@ -578,26 +584,31 @@ class AnalyticsView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${worker.name} - Payment History',
-                          style: GoogleFonts.poppins(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${worker.name} - Payment History',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        Text(
-                          'Update amounts or remove incorrect payment entries',
-                          style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey),
-                        ),
-                      ],
+                          Text(
+                            'Update amounts or remove incorrect payment entries',
+                            style: GoogleFonts.poppins(fontSize: 10.5, color: Colors.grey),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(ctx),
+                      visualDensity: VisualDensity.compact,
                     ),
                   ],
                 ),
@@ -747,50 +758,169 @@ class AnalyticsView extends StatelessWidget {
 
                 final timeChips = Obx(() {
                   final currentFilter = analyticsCtrl.selectedFilter.value;
+                  final customRange = analyticsCtrl.customDateRange.value;
+                  final isCustom = customRange != null;
+
                   return Wrap(
-                    spacing: 8,
+                    spacing: 6,
                     runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       _FilterChip(
                         label: 'Weekly',
-                        isSelected: currentFilter == TimeFilter.weekly,
+                        isSelected: currentFilter == TimeFilter.weekly && !isCustom,
                         onSelected: () => analyticsCtrl.setFilter(TimeFilter.weekly),
                       ),
                       _FilterChip(
                         label: 'Monthly',
-                        isSelected: currentFilter == TimeFilter.monthly,
+                        isSelected: currentFilter == TimeFilter.monthly && !isCustom,
                         onSelected: () => analyticsCtrl.setFilter(TimeFilter.monthly),
                       ),
                       _FilterChip(
                         label: 'Yearly',
-                        isSelected: currentFilter == TimeFilter.yearly,
+                        isSelected: currentFilter == TimeFilter.yearly && !isCustom,
                         onSelected: () => analyticsCtrl.setFilter(TimeFilter.yearly),
                       ),
                       _FilterChip(
                         label: 'All Time',
-                        isSelected: currentFilter == TimeFilter.allTime,
+                        isSelected: currentFilter == TimeFilter.allTime && !isCustom,
                         onSelected: () => analyticsCtrl.setFilter(TimeFilter.allTime),
+                      ),
+                      // Custom Date Range Picker Action Chip
+                      ActionChip(
+                        avatar: Icon(
+                          Icons.date_range_rounded,
+                          size: 16,
+                          color: isCustom ? AppColors.softGolden : AppColors.accentLightBrown,
+                        ),
+                        label: Text(
+                          isCustom
+                              ? '${DateFormat('dd MMM').format(customRange.start)} - ${DateFormat('dd MMM').format(customRange.end)}'
+                              : 'Custom',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: isCustom ? FontWeight.w700 : FontWeight.w500,
+                            color: isCustom ? Colors.white : (isDark ? AppColors.softGolden : AppColors.primaryDarkBrown),
+                          ),
+                        ),
+                        backgroundColor: isCustom
+                            ? AppColors.primaryDarkBrown
+                            : (isDark ? AppColors.darkSurfaceCard : Colors.white),
+                        side: BorderSide(
+                          color: isCustom ? AppColors.softGolden : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                        ),
+                        onPressed: () async {
+                          final picked = await showDateRangePicker(
+                            context: context,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                            initialDateRange: customRange ??
+                                DateTimeRange(
+                                  start: DateTime.now().subtract(const Duration(days: 30)),
+                                  end: DateTime.now(),
+                                ),
+                          );
+                          if (picked != null) {
+                            analyticsCtrl.setCustomDateRange(picked);
+                          }
+                        },
                       ),
                     ],
                   );
                 });
 
+                final monthSlider = Obx(() {
+                  final currentFilter = analyticsCtrl.selectedFilter.value;
+                  final customRange = analyticsCtrl.customDateRange.value;
+
+                  // Only show month slider when in Monthly mode or viewing month-specific data
+                  if (currentFilter != TimeFilter.monthly || customRange != null) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final selectedDate = analyticsCtrl.selectedMonthDate.value;
+                  final monthYearStr = DateFormat('MMMM yyyy').format(selectedDate);
+                  final isCurrentMonth = selectedDate.year == DateTime.now().year && selectedDate.month == DateTime.now().month;
+
+                  return Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkSurfaceCard : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left_rounded),
+                          tooltip: 'Previous Month',
+                          onPressed: () => analyticsCtrl.previousMonth(),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.calendar_month_outlined, size: 18, color: AppColors.accentLightBrown),
+                            const SizedBox(width: 8),
+                            Text(
+                              monthYearStr,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                              ),
+                            ),
+                            if (isCurrentMonth) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentLightBrown.withAlpha(40),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'Current',
+                                  style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.accentLightBrown),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right_rounded),
+                          tooltip: 'Next Month',
+                          onPressed: () => analyticsCtrl.nextMonth(),
+                        ),
+                      ],
+                    ),
+                  );
+                });
+
                 if (isNarrow) {
                   return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       toggleSwitcher,
                       const SizedBox(height: 12),
                       timeChips,
+                      monthSlider,
                     ],
                   );
                 }
 
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                return Column(
                   children: [
-                    toggleSwitcher,
-                    timeChips,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        toggleSwitcher,
+                        timeChips,
+                      ],
+                    ),
+                    monthSlider,
                   ],
                 );
               },
@@ -1286,68 +1416,120 @@ class AnalyticsView extends StatelessWidget {
                       final isMobile = constraints.maxWidth < 650;
 
                       if (isMobile) {
+                        final isSmall = MediaQuery.of(context).size.width <= 380;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Worker Header & Role Badge
                             Row(
                               children: [
                                 CircleAvatar(
-                                  backgroundColor: AppColors.accentLightBrown.withAlpha(50),
+                                  radius: 20,
+                                  backgroundColor: AppColors.primaryDarkBrown.withAlpha(isDark ? 60 : 30),
                                   child: Text(
-                                    s.worker.name.isNotEmpty ? s.worker.name[0] : 'W',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    s.worker.name.isNotEmpty ? s.worker.name[0].toUpperCase() : 'W',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15,
+                                      color: AppColors.accentLightBrown,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         s.worker.name,
-                                        style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 16),
+                                        style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
+                                          color: isDark ? AppColors.softGolden : AppColors.primaryDarkBrown,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        '${s.worker.role} • ${s.totalOrdersAssigned} Orders Assigned',
-                                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                                        '${s.worker.role} • ${s.totalOrdersAssigned} Orders',
+                                        style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                            const Divider(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _StatColumn(
-                                  label: 'Earned Wages',
-                                  value: '₹${s.totalWagesEarned.toStringAsFixed(0)}',
-                                  color: Colors.blueAccent,
-                                ),
-                                _StatColumn(
-                                  label: 'Advance Taken',
-                                  value: '-₹${s.totalAdvanceTaken.toStringAsFixed(0)}',
-                                  color: const Color(0xFFD97706),
-                                ),
-                                _StatColumn(
-                                  label: 'Net Due Salary',
-                                  value: '₹${s.netPendingSalary.toStringAsFixed(0)}',
-                                  color: const Color(0xFF16A34A),
-                                  isBold: true,
+                                IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.history_rounded, color: AppColors.accentLightBrown, size: 20),
+                                  tooltip: 'History & Logs',
+                                  onPressed: () => _showWorkerTransactionHistoryDialog(context, s.worker, ctrl),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 12),
+
+                            // Clean 3-part Financial Metrics Container
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isDark ? AppColors.darkSurfaceCard : AppColors.lightSurfaceCard,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _StatColumn(
+                                      label: 'Earned',
+                                      value: '₹${s.totalWagesEarned.toStringAsFixed(0)}',
+                                      color: Colors.blueAccent,
+                                    ),
+                                  ),
+                                  Container(height: 28, width: 1, color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 8),
+                                      child: _StatColumn(
+                                        label: 'Advance',
+                                        value: '-₹${s.totalAdvanceTaken.toStringAsFixed(0)}',
+                                        color: const Color(0xFFD97706),
+                                      ),
+                                    ),
+                                  ),
+                                  Container(height: 28, width: 1, color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 8),
+                                      child: _StatColumn(
+                                        label: 'Net Due',
+                                        value: '₹${s.netPendingSalary.toStringAsFixed(0)}',
+                                        color: const Color(0xFF16A34A),
+                                        isBold: true,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Professional Full-Width Action Buttons
                             Row(
                               children: [
                                 Expanded(
                                   child: OutlinedButton.icon(
                                     onPressed: () => _showRecordAdvanceDialog(context, s.worker),
-                                    icon: const Icon(Icons.money_off, size: 16),
-                                    label: const Text('Give Advance'),
+                                    icon: const Icon(Icons.money_off, size: 15),
+                                    label: Text(
+                                      isSmall ? 'Advance' : 'Give Advance',
+                                      style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600),
+                                    ),
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor: const Color(0xFFD97706),
+                                      side: const BorderSide(color: Color(0xFFD97706), width: 1.2),
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
                                   ),
                                 ),
@@ -1355,19 +1537,19 @@ class AnalyticsView extends StatelessWidget {
                                 Expanded(
                                   child: ElevatedButton.icon(
                                     onPressed: () => _showSettleSalaryDialog(context, s),
-                                    icon: const Icon(Icons.payments, size: 16),
-                                    label: const Text('Pay Salary'),
+                                    icon: const Icon(Icons.payments_rounded, size: 15),
+                                    label: Text(
+                                      isSmall ? 'Pay' : 'Pay Salary',
+                                      style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600),
+                                    ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF16A34A),
                                       foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                IconButton(
-                                  icon: const Icon(Icons.history, color: AppColors.accentLightBrown),
-                                  tooltip: 'Payment History (Edit / Delete)',
-                                  onPressed: () => _showWorkerTransactionHistoryDialog(context, s.worker, ctrl),
                                 ),
                               ],
                             ),

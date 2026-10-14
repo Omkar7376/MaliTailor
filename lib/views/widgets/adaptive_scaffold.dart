@@ -125,6 +125,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isDesktop = AdaptiveLayout.isDesktop(context);
     final isTablet = AdaptiveLayout.isTablet(context);
+    final isSmallMobile = AdaptiveLayout.isSmallMobile(context);
     final authController = Get.find<AuthController>();
     final themeController = Get.find<ThemeController>();
 
@@ -134,18 +135,24 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
       onPressed: _handleGlobalRefresh,
     );
 
-    final effectiveBody = RefreshIndicator(
-      onRefresh: _handleGlobalRefresh,
-      color: AppColors.accentLightBrown,
-      child: widget.body,
+    final effectiveBody = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      switchInCurve: Curves.easeIn,
+      switchOutCurve: Curves.easeOut,
+      child: RefreshIndicator(
+        key: ValueKey<int>(widget.currentIndex),
+        onRefresh: _handleGlobalRefresh,
+        color: AppColors.accentLightBrown,
+        child: widget.body,
+      ),
     );
 
     final navItems = [
-      _NavItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Dashboard'),
+      _NavItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Home'),
       _NavItem(icon: Icons.people_outline, activeIcon: Icons.people_rounded, label: 'Customers'),
       _NavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long_rounded, label: 'Orders'),
       _NavItem(icon: Icons.badge_outlined, activeIcon: Icons.badge_rounded, label: 'Staff'),
-      _NavItem(icon: Icons.analytics_outlined, activeIcon: Icons.analytics_rounded, label: 'Accounts & Income'),
+      _NavItem(icon: Icons.analytics_outlined, activeIcon: Icons.analytics_rounded, label: 'Analysis'),
     ];
 
     if (isDesktop) {
@@ -495,7 +502,13 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
     // Mobile (< 600px)
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: GoogleFonts.poppins(
+            fontSize: isSmallMobile ? 16 : 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
           refreshButton,
           ...?widget.actions,
@@ -527,7 +540,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'StitchUp',
+                    'Mali Tailors',
                     style: GoogleFonts.poppins(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Obx(() {
@@ -607,16 +620,110 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
         ),
       ),
       body: effectiveBody,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: widget.currentIndex.clamp(0, 4),
-        onDestinationSelected: _onNavigate,
-        destinations: navItems.map((item) {
-          return NavigationDestination(
-            icon: Icon(item.icon),
-            selectedIcon: Icon(item.activeIcon),
-            label: item.label,
-          );
-        }).toList(),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: isSmallMobile ? 8 : 14,
+            vertical: isSmallMobile ? 6 : 8,
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallMobile ? 4 : 8,
+            vertical: isSmallMobile ? 6 : 8,
+          ),
+          decoration: BoxDecoration(
+            color: isDark
+                ? const Color(0xFF1F1A15).withAlpha(245)
+                : Colors.white.withAlpha(245),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark
+                  ? AppColors.softGolden.withAlpha(35)
+                  : AppColors.accentLightBrown.withAlpha(60),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(isDark ? 80 : 25),
+                blurRadius: 18,
+                spreadRadius: 1,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(navItems.length, (index) {
+              final item = navItems[index];
+              final isSelected = widget.currentIndex == index;
+
+              return Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _onNavigate(index),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutCubic,
+                    padding: EdgeInsets.symmetric(
+                      vertical: isSmallMobile ? 5 : 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? (isDark
+                              ? AppColors.softGolden.withAlpha(38)
+                              : AppColors.primaryDarkBrown.withAlpha(22))
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedScale(
+                          scale: isSelected ? 1.15 : 1.0,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOutBack,
+                          child: Icon(
+                            isSelected ? item.activeIcon : item.icon,
+                            size: isSmallMobile ? 20 : 22,
+                            color: isSelected
+                                ? (isDark ? AppColors.softGolden : AppColors.primaryDarkBrown)
+                                : (isDark ? Colors.white60 : Colors.black45),
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: isSmallMobile ? 9.5 : 11,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isSelected
+                                ? (isDark ? AppColors.softGolden : AppColors.primaryDarkBrown)
+                                : (isDark ? Colors.white60 : Colors.black54),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        // Animated dot indicator
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOutQuad,
+                          width: isSelected ? (isSmallMobile ? 12 : 16) : 0,
+                          height: 2.5,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? (isDark ? AppColors.softGolden : AppColors.primaryDarkBrown)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
       ),
       floatingActionButton: widget.floatingActionButton ??
           FloatingActionButton(

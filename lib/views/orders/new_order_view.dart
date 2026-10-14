@@ -73,7 +73,9 @@ class _NewOrderViewState extends State<NewOrderView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create New Tailoring Order'),
+        title: const Text('Create New Tailoring Order',
+          style: TextStyle(fontSize: 16),
+        ),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(AdaptiveLayout.getHorizontalPadding(context)),
@@ -206,9 +208,12 @@ class _NewOrderViewState extends State<NewOrderView> {
                               child: const Icon(Icons.cut, color: AppColors.tealAccent, size: 20),
                             ),
                             const SizedBox(width: 12),
-                            Text(
-                              'Garment Items & Reactive Pricing',
-                              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
+                            Expanded(
+                              child: Text(
+                                'Garment Items & Pricing',
+                                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         ),
@@ -571,35 +576,39 @@ class _NewOrderViewState extends State<NewOrderView> {
                                     Icons.event,
                                     color: isUrgent ? Colors.redAccent : AppColors.accentLightBrown,
                                   ),
-                                  const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Target Delivery Date', style: GoogleFonts.poppins(fontSize: 11)),
-                                      Text(
-                                        DateFormat('EEEE, dd MMMM yyyy').format(date),
-                                        style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Target Delivery Date', style: GoogleFonts.poppins(fontSize: 11)),
+                                        Text(
+                                          DateFormat('EEE, dd MMM yyyy').format(date),
+                                          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  const Spacer(),
-                                  if (isUrgent)
+                                  if (isUrgent) ...[
+                                    const SizedBox(width: 6),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                       decoration: BoxDecoration(
                                         color: Colors.redAccent.withAlpha(30),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(color: Colors.redAccent),
                                       ),
                                       child: Text(
-                                        '⚡ URGENT DELIVERY ALERT',
+                                        '⚡ URGENT',
                                         style: GoogleFonts.poppins(
-                                          fontSize: 11,
+                                          fontSize: 10,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.redAccent,
                                         ),
                                       ),
                                     ),
+                                  ],
                                 ],
                               ),
                             ),

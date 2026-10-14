@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../controllers/auth_controller.dart';
+import '../../routes/app_routes.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -16,6 +17,17 @@ class _LoginViewState extends State<LoginView> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = Get.find<AuthController>();
+      if (auth.isAuthenticated) {
+        Get.offAllNamed(AppRoutes.dashboard);
+      }
+    });
+  }
 
   @override
   void dispose() {

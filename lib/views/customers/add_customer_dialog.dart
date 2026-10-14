@@ -287,7 +287,10 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width <= 380 ? 14 : 24,
+                    vertical: 16,
+                  ),
                   children: [
                     _buildSectionHeader('Customer Information & Ledger'),
                     const SizedBox(height: 14),
@@ -317,19 +320,21 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
                               labelText: 'Phone Number *',
                               prefixIcon: Icon(Icons.phone_outlined),
                               hintText: '+91 98765 43210',
+                              isDense: true,
                             ),
                             validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter phone number' : null,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(
                           flex: 2,
                           child: TextFormField(
                             controller: _bookNoController,
                             decoration: const InputDecoration(
-                              labelText: 'Book # (खाता) *',
+                              labelText: 'Book # *',
                               prefixIcon: Icon(Icons.menu_book),
                               hintText: '108',
+                              isDense: true,
                             ),
                             validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter book #' : null,
                           ),
@@ -345,7 +350,11 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
                           flex: 2,
                           child: DropdownButtonFormField<String>(
                             initialValue: _selectedGender,
-                            decoration: const InputDecoration(labelText: 'Gender'),
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Gender',
+                              isDense: true,
+                            ),
                             items: const [
                               DropdownMenuItem(value: 'Male', child: Text('Male')),
                               DropdownMenuItem(value: 'Female', child: Text('Female')),
@@ -356,7 +365,7 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(
                           flex: 3,
                           child: TextFormField(
@@ -364,13 +373,14 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
                             decoration: const InputDecoration(
                               labelText: 'Address / Area',
                               prefixIcon: Icon(Icons.location_on_outlined),
-                              hintText: 'e.g. Main Road, Pune',
+                              hintText: 'e.g. Pune',
+                              isDense: true,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     // --- Measurement Selection Options ---
                     _buildSectionHeader('Choose Measurements to Record'),
