@@ -500,8 +500,16 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
     }
 
     // Mobile (< 600px)
-    return Scaffold(
-      appBar: AppBar(
+    return PopScope(
+      canPop: widget.currentIndex != 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && widget.currentIndex != 0) {
+          // If on another tab, back goes to Dashboard (Home)
+          _onNavigate(0);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
         title: Text(
           widget.title,
           style: GoogleFonts.poppins(
@@ -732,6 +740,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
             foregroundColor: AppColors.primaryDarkBrown,
             child: const Icon(Icons.add),
           ),
+      ),
     );
   }
 }

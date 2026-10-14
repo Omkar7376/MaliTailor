@@ -48,13 +48,19 @@ class AuthController extends GetxController {
     _restoreSession();
   }
 
-  Future<void> _restoreSession() async {
+  Future<bool> initSession() async {
     final tailor = await _authService.checkPersistedSession();
     if (tailor != null) {
       currentTailor.value = tailor;
-      if (Get.currentRoute == AppRoutes.login || Get.currentRoute == '') {
-        Get.offAllNamed(AppRoutes.dashboard);
-      }
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> _restoreSession() async {
+    final ok = await initSession();
+    if (ok && (Get.currentRoute == AppRoutes.login || Get.currentRoute == '' || Get.currentRoute == '/')) {
+      Get.offAllNamed(AppRoutes.dashboard);
     }
   }
 

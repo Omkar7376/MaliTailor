@@ -13,11 +13,18 @@ import '../views/orders/order_detail_view.dart';
 import '../views/workers/workers_view.dart';
 import '../views/analytics/analytics_view.dart';
 import '../views/invoices/invoice_view.dart';
+import '../views/splash/splash_view.dart';
 
 class AppPages {
-  static const initial = AppRoutes.login;
+  static const initial = AppRoutes.splash;
 
   static final routes = [
+    GetPage(
+      name: AppRoutes.splash,
+      page: () => const SplashView(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginView(),
